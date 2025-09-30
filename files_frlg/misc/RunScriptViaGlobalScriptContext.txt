@@ -1,6 +1,7 @@
 @@ title = "Run script via GlobalScriptContext"
 @@ author = "final and Mettrich"
-@@ exit = "GrabACEExit"
+@@ exit = "ROM_BX_lr_Box10_Grab"
+@@ filler4 = 0xffffffff
 
 // This code inserts a custom script pointer into the global script
 // context (and also sets some other stuff) that will run as soon as
@@ -11,18 +12,18 @@
 // Trigger ACE, then leave the boxes, and then exit the menu, the
 // script should run.
 
-script_address = 0x0
+script_address = 0
 
 @@
 
-MOV r10, #0x3000000  ; Prepare sGlobalScriptContextStatus address part 1
-MOV r11, #0x2e0  ; Prepare stackDepth, and mode part 1
-BIC r12, r10, #0xff000000  ; r12 = 0
-SBC r11, #0xde  ; r11 = 0x0201, prepare stackDepth, and mode part 2
+MOV     r10, #0x3000000             ; Prepare sGlobalScriptContextStatus address part 1
 
-STRB r12, [r10, #0xea8]!  ; Store RUNNING status in sGlobalScriptContextStatus, address part 2
-STRH r11, [r10, #8]!  ; Store in sGlobalScriptContext->stackDepth, and sGlobalScriptContext->mode
-STR r12, [r10, lr, ASR #25]!  ; Store in sGlobalScriptContext->nativePtr
+MOV     r12, r14, ASR #19           ; r12 = 0x1??, prepare mode, and stackDepth part 1
+BIC     r12, r12, #0xff             ; r12 = 0x100, prepare mode, and stackDepth part 2
 
-MOV r12, {script_address} ?
-STR r12, [r10, lr, ASR #25]!  ; Store in sGlobalScriptContext->scriptPtr
+STRB    r12, [r10, #0xea8]!         ; Store RUNNING status in sGlobalScriptContextStatus, address part 2
+
+STRH    r12, [r10, #8]              ; Store in sGlobalScriptContext->stackDepth, and sGlobalScriptContext->mode
+
+MOV     r12, #{script_address} ?
+STR     r12, [r10, r14, ASR #23]!   ; Store in sGlobalScriptContext->scriptPtr
